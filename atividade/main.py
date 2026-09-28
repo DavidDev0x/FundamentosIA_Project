@@ -1,83 +1,91 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import os
-
-# Importando nossos módulos (Isso deixa o main.py muito mais limpo!)
+import matplotlib.pyplot as plt
+import numpy as np
 from agente import Agente
 from algoritmo import a_estrela
 
+LINHAS = COLUNAS = 30
+INICIO = (1, 15)
+OBJETIVO = (28, 15)
+
+# (x_min, x_max, y_min, y_max). Ajustar pela grade se necessario.
+OBSTACULOS_FIXOS = [(14, 17, 5, 17)]
+
+CENARIOS = {
+    "frame0.jpg": [(15,5),(15,6),(15,7),(14,16),(16,15),(21,11),(9,23),(10,22),(8,21),(12,21),(11,28),(9,29),(20,27),(22,28),(24,1),(27,2)],
+    "frame170.jpg": [(15,5),(15,6),(15,7),(15,16),(17,14),(20,15),(23,16),(15,24),(10,19),(9,16),(6,13),(5,12)],
+    "frame339.jpg": [(15,5),(15,6),(15,7),(14,16),(15,15),(20,12),(23,15),(18,26),(5,11),(7,12)],
+}
+
+def criar_mapa(pessoas, agente):
+    custo = np.zeros((LINHAS, COLUNAS), dtype=float)
+    bloqueados = np.zeros((LINHAS, COLUNAS), dtype=bool)
+
+    for x1, x2, y1, y2 in OBSTACULOS_FIXOS:
+        bloqueados[y1:y2+1, x1:x2+1] = True
+
+    for px, py in pessoas:
+        if 0 <= px < COLUNAS and 0 <= py < LINHAS:
+            bloqueados[py, px] = True
+            for dy in range(-agente.raio_social, agente.raio_social + 1):
+                for dx in range(-agente.raio_social, agente.raio_social + 1):
+                    y, x = py + dy, px + dx
+                    if not (0 <= x < COLUNAS and 0 <= y < LINHAS):
+                        continue
+                    dist = np.hypot(dx, dy)
+                    if 0 < dist <= agente.raio_social:
+                        valor = (agente.raio_social - dist + 1) * agente.peso_penalidade
+                        # MAX evita que bolhas sobrepostas virem uma parede acidental.
+                        custo[y, x] = max(custo[y, x], valor)
+
+    bloqueados[INICIO] = False
+    bloqueados[OBJETIVO] = False
+    return custo, bloqueados
+
 def simular_agente_no_frame(nome_imagem, pessoas, agente):
-    print(f"Gerando simulação visual: {agente.nome}...")
-    linhas, colunas = 30, 30
-    grid = np.zeros((linhas, colunas))
+    diretorio = os.path.dirname(os.path.abspath(__file__))
+    custo, bloqueados = criar_mapa(pessoas, agente)
+    caminho = a_estrela(custo, bloqueados, INICIO, OBJETIVO)
+    if caminho is None:
+        raise RuntimeError(f"Sem rota para {agente.nome} em {nome_imagem}")
 
-    # Construindo o mapa de Força Social baseado no Agente injetado
-    for px, py in pessoas:
-        if 0 <= py < linhas and 0 <= px < colunas:
-            grid[py][px] = 100 
-            raio = agente.raio_social
-            for i in range(-raio, raio + 1):
-                for j in range(-raio, raio + 1):
-                    if 0 <= py+i < linhas and 0 <= px+j < colunas:
-                        if grid[py+i][px+j] < 100:
-                            dist = np.sqrt(i**2 + j**2)
-                            if dist <= raio:
-                                grid[py+i][px+j] += (raio - dist + 1) * agente.peso_penalidade 
-
-    inicio = (1, 15)
-    objetivo = (28, 15)
-    
-    # Chama o motor de busca passando o grid modificado
-    caminho = a_estrela(grid, inicio, objetivo)
-
-    # Plotagem (Renderização do Gráfico)
     fig, ax = plt.subplots(figsize=(8, 8))
-    if os.path.exists(nome_imagem):
-        img = plt.imread(nome_imagem)
-        ax.imshow(img, extent=[0, colunas, 0, linhas])
+    imagem = os.path.join(diretorio, nome_imagem)
+    if os.path.exists(imagem):
+        ax.imshow(plt.imread(imagem), extent=[0, COLUNAS, 0, LINHAS])
     else:
-        ax.imshow(grid, cmap='hot', origin='lower', extent=[0, colunas, 0, linhas], alpha=0.6)
+        ax.imshow(custo, origin="lower", extent=[0,COLUNAS,0,LINHAS], alpha=.6)
 
-    ax.set_xticks(np.arange(0, colunas, 1))
-    ax.set_yticks(np.arange(0, linhas, 1))
-    ax.grid(color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
-    ax.plot(inicio[1] + 0.5, inicio[0] + 0.5, 'go', markersize=12)
-    ax.plot(objetivo[1] + 0.5, objetivo[0] + 0.5, 'bo', markersize=12)
+    ax.set_xticks(np.arange(COLUNAS + 1)); ax.set_yticks(np.arange(LINHAS + 1))
+    ax.grid(linewidth=.5, alpha=.5)
+    ax.plot(INICIO[1]+.5, INICIO[0]+.5, "go", markersize=12)
+    ax.plot(OBJETIVO[1]+.5, OBJETIVO[0]+.5, "bo", markersize=12)
 
     for px, py in pessoas:
-        ax.plot(px + 0.5, py + 0.5, 'kx', markersize=8, markeredgewidth=2)
-        circle = plt.Circle((px + 0.5, py + 0.5), agente.raio_social + 0.5, color='red', fill=False, linestyle='--', alpha=0.5)
-        ax.add_patch(circle)
+        ax.plot(px+.5, py+.5, "kx", markersize=8, markeredgewidth=2)
+        ax.add_patch(plt.Circle((px+.5,py+.5), agente.raio_social+.5,
+                                fill=False, linestyle="--", alpha=.45))
 
-    if caminho:
-        y_coords = [p[0] + 0.5 for p in caminho]
-        x_coords = [p[1] + 0.5 for p in caminho]
-        ax.plot(x_coords, y_coords, color=agente.cor_linha, linewidth=4, label=f'{agente.nome}')
+    ys=[p[0]+.5 for p in caminho]; xs=[p[1]+.5 for p in caminho]
+    ax.plot(xs, ys, color=agente.cor_linha, linewidth=4, label=agente.nome)
+    ax.set_title(f"A* - {agente.nome} ({nome_imagem})")
+    ax.legend(); ax.set_xlim(0,COLUNAS); ax.set_ylim(0,LINHAS)
 
-    plt.title(f'A* - {agente.nome} ({nome_imagem})')
-    plt.legend()
-    plt.xlim(0, colunas)
-    plt.ylim(0, linhas)
-    
-    nome_seguro = agente.nome.replace(" ", "_").replace("ô", "o")
-    nome_saida = f"diagrama_FINAL_{nome_seguro}.png"
-    plt.savefig(nome_saida, dpi=300, bbox_inches='tight')
-    plt.close()
+    nome=agente.nome.replace(" ","_").replace("ô","o").replace("ç","c").replace("ã","a")
+    frame=os.path.splitext(nome_imagem)[0]
+    saida=os.path.join(diretorio, f"diagrama_{frame}_{nome}.png")
+    plt.savefig(saida, dpi=300, bbox_inches="tight"); plt.close()
+    print(f"{nome_imagem} | {agente.nome} | caminho={len(caminho)} celulas")
+    return caminho
 
-
-if __name__ == '__main__':
-    # 1. Instanciamos os objetos (Injeção de Dependências)
-    robo = Agente("Robô de Limpeza", raio_social=3, peso_penalidade=20, cor_linha='blue')
-    apressado = Agente("Pedestre Apressado", raio_social=1, peso_penalidade=2, cor_linha='red')
-    seguranca = Agente("Segurança", raio_social=2, peso_penalidade=10, cor_linha='orange')
-
-    # 2. Definimos o Estado do Ambiente (Obstáculos do Frame 0)
-    pessoas_frame0 = [(15,5), (15,6), (15,7), (14,16), (16,15), (21,11), (10,21), (11,26)]
-
-    # 3. Executamos
-    print("Iniciando simulações na arquitetura modularizada...\n")
-    simular_agente_no_frame('frame0.jpg', pessoas_frame0, robo)
-    simular_agente_no_frame('frame0.jpg', pessoas_frame0, apressado)
-    simular_agente_no_frame('frame0.jpg', pessoas_frame0, seguranca)
-    
-    print("\n🎉 Projeto executado com sucesso! Arquivos salvos na pasta.")
+if __name__ == "__main__":
+    agentes = [
+        Agente("Robô de Limpeza", 3, 4.0, "blue"),
+        Agente("Pedestre Apressado", 1, 0.5, "red"),
+        Agente("Segurança", 2, 2.0, "orange"),
+    ]
+    for frame, pessoas in CENARIOS.items():
+        print(f"--- {frame} ---")
+        for agente in agentes:
+            simular_agente_no_frame(frame, pessoas, agente)
+    print("[SUCESSO] 3 frames x 3 agentes processados.")

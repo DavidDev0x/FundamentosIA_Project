@@ -1,57 +1,50 @@
-import numpy as np
 import heapq
+import math
+
+MOVIMENTOS = (
+    (0, 1, 1.0), (0, -1, 1.0), (1, 0, 1.0), (-1, 0, 1.0),
+    (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)),
+    (-1, 1, math.sqrt(2)), (-1, -1, math.sqrt(2)),
+)
 
 def heuristica(a, b):
-    """Calcula a Distância Euclidiana entre dois pontos."""
-    return np.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
+    return math.hypot(b[0] - a[0], b[1] - a[1])
 
-def a_estrela(grid, inicio, objetivo):
-    """
-    Motor de busca que encontra o caminho mais barato (menor g(n) + h(n)).
-    """
-    vizinhos = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
-    close_set = set()
-    came_from = {}
-    
-    gscore = {inicio: 0}
-    fscore = {inicio: heuristica(inicio, objetivo)}
-    
-    oheap = []
-    heapq.heappush(oheap, (fscore[inicio], inicio))
-    
-    while oheap:
-        current = heapq.heappop(oheap)[1]
-        
-        # Se chegou ao destino, reconstrói o caminho de trás para frente
-        if current == objetivo:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            path.append(inicio)
-            return path[::-1]
-            
-        close_set.add(current)
-        
-        for i, j in vizinhos:
-            vizinho = current[0] + i, current[1] + j
-            
-            if 0 <= vizinho[0] < grid.shape[0] and 0 <= vizinho[1] < grid.shape[1]:
-                custo_movimento = 1.0 if (i == 0 or j == 0) else 1.414
-                
-                penalidade = grid[vizinho[0]][vizinho[1]]
-                if penalidade >= 100: # Barreira física
-                    continue
-                    
-                tentative_g_score = gscore[current] + custo_movimento + penalidade
-                
-                if vizinho in close_set and tentative_g_score >= gscore.get(vizinho, 0):
-                    continue
-                    
-                if tentative_g_score < gscore.get(vizinho, 0) or vizinho not in [item[1] for item in oheap]:
-                    came_from[vizinho] = current
-                    gscore[vizinho] = tentative_g_score
-                    fscore[vizinho] = tentative_g_score + heuristica(vizinho, objetivo)
-                    heapq.heappush(oheap, (fscore[vizinho], vizinho))
-                    
-    return False
+def a_estrela(custo_social, bloqueados, inicio, objetivo):
+    linhas, colunas = custo_social.shape
+    if bloqueados[inicio] or bloqueados[objetivo]:
+        raise ValueError("Inicio ou objetivo esta bloqueado.")
+
+    abertos = [(heuristica(inicio, objetivo), inicio)]
+    veio_de = {}
+    g = {inicio: 0.0}
+    fechados = set()
+
+    while abertos:
+        _, atual = heapq.heappop(abertos)
+        if atual in fechados:
+            continue
+        if atual == objetivo:
+            caminho = [atual]
+            while atual in veio_de:
+                atual = veio_de[atual]
+                caminho.append(atual)
+            return caminho[::-1]
+
+        fechados.add(atual)
+        for dl, dc, custo_movimento in MOVIMENTOS:
+            vizinho = (atual[0] + dl, atual[1] + dc)
+            if not (0 <= vizinho[0] < linhas and 0 <= vizinho[1] < colunas):
+                continue
+            if bloqueados[vizinho]:
+                continue
+
+            novo_g = g[atual] + custo_movimento + float(custo_social[vizinho])
+            if novo_g < g.get(vizinho, float("inf")):
+                veio_de[vizinho] = atual
+                g[vizinho] = novo_g
+                heapq.heappush(
+                    abertos,
+                    (novo_g + heuristica(vizinho, objetivo), vizinho),
+                )
+    return None
