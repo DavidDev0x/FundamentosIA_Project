@@ -7,11 +7,24 @@ MOVIMENTOS = (
     (-1, 1, math.sqrt(2)), (-1, -1, math.sqrt(2)),
 )
 
+
 def heuristica(a, b):
     return math.hypot(b[0] - a[0], b[1] - a[1])
 
+
+def _diagonal_valida(atual, dl, dc, bloqueados):
+    """Impede que o agente atravesse diagonalmente o canto de obstáculos."""
+    if dl == 0 or dc == 0:
+        return True
+
+    lateral_1 = (atual[0] + dl, atual[1])
+    lateral_2 = (atual[0], atual[1] + dc)
+    return not bloqueados[lateral_1] and not bloqueados[lateral_2]
+
+
 def a_estrela(custo_social, bloqueados, inicio, objetivo):
     linhas, colunas = custo_social.shape
+
     if bloqueados[inicio] or bloqueados[objetivo]:
         raise ValueError("Inicio ou objetivo esta bloqueado.")
 
@@ -22,8 +35,10 @@ def a_estrela(custo_social, bloqueados, inicio, objetivo):
 
     while abertos:
         _, atual = heapq.heappop(abertos)
+
         if atual in fechados:
             continue
+
         if atual == objetivo:
             caminho = [atual]
             while atual in veio_de:
@@ -32,14 +47,23 @@ def a_estrela(custo_social, bloqueados, inicio, objetivo):
             return caminho[::-1]
 
         fechados.add(atual)
+
         for dl, dc, custo_movimento in MOVIMENTOS:
             vizinho = (atual[0] + dl, atual[1] + dc)
+
             if not (0 <= vizinho[0] < linhas and 0 <= vizinho[1] < colunas):
                 continue
             if bloqueados[vizinho]:
                 continue
+            if not _diagonal_valida(atual, dl, dc, bloqueados):
+                continue
 
-            novo_g = g[atual] + custo_movimento + float(custo_social[vizinho])
+            novo_g = (
+                g[atual]
+                + custo_movimento
+                + float(custo_social[vizinho])
+            )
+
             if novo_g < g.get(vizinho, float("inf")):
                 veio_de[vizinho] = atual
                 g[vizinho] = novo_g
@@ -47,4 +71,5 @@ def a_estrela(custo_social, bloqueados, inicio, objetivo):
                     abertos,
                     (novo_g + heuristica(vizinho, objetivo), vizinho),
                 )
+
     return None
