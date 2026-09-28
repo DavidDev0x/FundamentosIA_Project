@@ -1,0 +1,2 @@
+-r checkin_2/requirements.txt
+pytest>=7.0
