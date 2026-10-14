@@ -1,0 +1,46 @@
+Minuto,Cruzamento,Ocupacao_Real_%,Ocupacao_Prevista_%,Acao_Preditiva
+1,Node_A,0.0,76.7,Predição de Gargalo! Verde Principal=40s / Transversal=20s
+1,Node_B,0.0,0.0,Alívio Transversal. Verde Principal=20s / Transversal=40s
+1,Node_C,0.0,0.0,Manteve Ciclo
+2,Node_A,30.0,72.3,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+2,Node_B,23.3,23.3,Alívio Transversal. Verde Principal=10s / Transversal=50s
+2,Node_C,0.0,0.0,Manteve Ciclo
+3,Node_A,14.0,52.9,Manteve Ciclo
+3,Node_B,70.0,70.0,Manteve Ciclo
+3,Node_C,0.0,0.0,Manteve Ciclo
+4,Node_A,0.0,70.9,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+4,Node_B,106.2,106.2,Predição de Gargalo! Verde Principal=20s / Transversal=40s
+4,Node_C,0.0,0.0,Manteve Ciclo
+5,Node_A,0.0,42.0,Manteve Ciclo
+5,Node_B,143.8,143.8,Predição de Gargalo! Verde Principal=30s / Transversal=30s
+5,Node_C,0.0,0.0,Alívio Transversal. Verde Principal=20s / Transversal=40s
+6,Node_A,0.0,45.7,Manteve Ciclo
+6,Node_B,150.8,150.8,Predição de Gargalo! Verde Principal=40s / Transversal=20s
+6,Node_C,11.7,11.7,Manteve Ciclo
+7,Node_A,0.0,56.1,Manteve Ciclo
+7,Node_B,149.8,149.8,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+7,Node_C,35.0,35.0,Manteve Ciclo
+8,Node_A,0.0,65.3,Manteve Ciclo
+8,Node_B,122.6,122.6,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+8,Node_C,85.0,85.0,Predição de Gargalo! Verde Principal=30s / Transversal=30s
+9,Node_A,0.0,78.9,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+9,Node_B,104.6,104.6,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+9,Node_C,118.3,118.3,Predição de Gargalo! Verde Principal=40s / Transversal=20s
+10,Node_A,0.0,82.8,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+10,Node_B,100.1,100.1,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+10,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+11,Node_A,0.0,80.2,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+11,Node_B,99.5,99.5,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+11,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+12,Node_A,0.0,41.1,Manteve Ciclo
+12,Node_B,96.4,96.4,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+12,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+13,Node_A,0.0,80.2,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+13,Node_B,79.1,79.1,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+13,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+14,Node_A,0.0,41.4,Manteve Ciclo
+14,Node_B,76.0,76.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+14,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s
+15,Node_A,0.0,46.8,Manteve Ciclo
+15,Node_B,34.1,34.1,Manteve Ciclo
+15,Node_C,135.0,135.0,Predição de Gargalo! Verde Principal=50s / Transversal=10s

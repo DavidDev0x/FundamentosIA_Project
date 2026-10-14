@@ -1,0 +1,19 @@
+Minuto,Cruzamento,Fila_Metros,Ocupacao_%,Acao_Coordenador
+2026-09-28 17:00:00,Av_Beira_Mar_x_Tancredo,0.0,0.0,Reduziu Verde (25s) - Via Ociosa
+2026-09-28 17:00:00,Av_Rio_de_Janeiro_x_Hermes,0.0,0.0,Reduziu Verde (25s) - Via Ociosa
+2026-09-28 17:00:00,Av_Simeao_Sobral_x_Airton,27.0,18.0,Reduziu Verde (25s) - Via Ociosa
+2026-09-28 17:01:00,Av_Beira_Mar_x_Tancredo,80.5,26.8,Manteve Verde (25s)
+2026-09-28 17:01:00,Av_Rio_de_Janeiro_x_Hermes,0.0,0.0,Reduziu Verde (20s) - Via Ociosa
+2026-09-28 17:01:00,Av_Simeao_Sobral_x_Airton,92.5,61.7,Manteve Verde (25s)
+2026-09-28 17:02:00,Av_Beira_Mar_x_Tancredo,145.0,48.3,Manteve Verde (25s)
+2026-09-28 17:02:00,Av_Rio_de_Janeiro_x_Hermes,24.5,9.8,Reduziu Verde (15s) - Via Ociosa
+2026-09-28 17:02:00,Av_Simeao_Sobral_x_Airton,102.5,68.3,Manteve Verde (25s)
+2026-09-28 17:03:00,Av_Beira_Mar_x_Tancredo,131.0,43.7,Manteve Verde (25s)
+2026-09-28 17:03:00,Av_Rio_de_Janeiro_x_Hermes,135.0,54.0,Manteve Verde (15s)
+2026-09-28 17:03:00,Av_Simeao_Sobral_x_Airton,81.0,54.0,Manteve Verde (25s)
+2026-09-28 17:04:00,Av_Beira_Mar_x_Tancredo,141.5,47.2,Manteve Verde (25s)
+2026-09-28 17:04:00,Av_Rio_de_Janeiro_x_Hermes,230.0,92.0,Aumentou Verde (25s) - Evitando Gridlock
+2026-09-28 17:04:00,Av_Simeao_Sobral_x_Airton,95.5,63.7,Manteve Verde (25s)
+2026-09-28 17:05:00,Av_Beira_Mar_x_Tancredo,48.0,16.0,Reduziu Verde (20s) - Via Ociosa
+2026-09-28 17:05:00,Av_Rio_de_Janeiro_x_Hermes,114.5,45.8,Manteve Verde (25s)
+2026-09-28 17:05:00,Av_Simeao_Sobral_x_Airton,0.0,0.0,Reduziu Verde (20s) - Via Ociosa

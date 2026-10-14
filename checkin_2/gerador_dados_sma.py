@@ -8,6 +8,12 @@ import pandas as pd
 SEMENTE_PADRAO = 42
 LIMITE_VELOCIDADE = 60.0
 LIMITE_ACELERACAO = 4.0
+TAMANHOS_VEICULOS = {
+    "Carro": 4.5,
+    "Moto": 2.0,
+    "Onibus": 12.0,
+    "Caminhao": 9.0,
+}
 
 
 def configurar_semente(semente=SEMENTE_PADRAO):
@@ -20,14 +26,30 @@ def gerar_dados_sinteticos(num_veiculos=300, semente=SEMENTE_PADRAO, inicio=None
     configurar_semente(semente)
 
     dados = []
-    cruzamentos = ["No_A_Centro", "No_B_Norte", "No_C_Leste"]
-    tipos_veiculo = ["Carro", "Moto", "Onibus", "Caminhao"]
+
+    # 1. Adaptando para o contexto de Aracaju (Feedback do Professor)
+    cruzamentos = ["Av_Beira_Mar_x_Tancredo", "Av_Rio_de_Janeiro_x_Hermes", "Av_Simeao_Sobral_x_Airton"]
+
+    # 2. Especificando o tamanho do veículo (Feedback do Professor)
+    tipos_veiculo = {
+        tipo: {"prob": probabilidade, "tamanho_m": TAMANHOS_VEICULOS[tipo]}
+        for tipo, probabilidade in {
+            "Carro": 0.70,
+            "Moto": 0.15,
+            "Onibus": 0.10,
+            "Caminhao": 0.05,
+        }.items()
+    }
+    nomes_tipos = list(tipos_veiculo.keys())
+    probs_tipos = [v["prob"] for v in tipos_veiculo.values()]
+
     perfis = ["Prudente", "Agressivo", "Infrator"]
     inicio = inicio or datetime(2026, 9, 28, 17, 0, 0)
 
     for i in range(num_veiculos):
         id_veiculo = f"V{i:04d}"
-        tipo = random.choices(tipos_veiculo, weights=[0.70, 0.15, 0.10, 0.05])[0]
+        tipo = random.choices(nomes_tipos, weights=probs_tipos)[0]
+        tamanho_metros = tipos_veiculo[tipo]["tamanho_m"]
         cruzamento = random.choice(cruzamentos)
         perfil = random.choices(perfis, weights=[0.60, 0.30, 0.10])[0]
         tempo_base = inicio + timedelta(seconds=i)
@@ -60,6 +82,7 @@ def gerar_dados_sinteticos(num_veiculos=300, semente=SEMENTE_PADRAO, inicio=None
                     "timestamp": timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                     "id_veiculo": id_veiculo,
                     "tipo_veiculo": tipo,
+                    "tamanho_metros": tamanho_metros,
                     "cruzamento": cruzamento,
                     "perfil_simulado": perfil,
                     "pos_x": round(float(pos_x), 2),
@@ -99,6 +122,10 @@ def limpar_dados(df):
 def preprocessar_para_agentes(df):
     """Executa a lógica do Agente Fiscal e cria o payload para o coordenador."""
     df_limpo = limpar_dados(df)
+    if "tamanho_metros" not in df_limpo.columns:
+        df_limpo["tamanho_metros"] = (
+            df_limpo["tipo_veiculo"].map(TAMANHOS_VEICULOS).fillna(0.0)
+        )
 
     df_limpo["excesso_velocidade"] = (
         df_limpo["velocidade_kmh"] > LIMITE_VELOCIDADE
@@ -119,6 +146,7 @@ def preprocessar_para_agentes(df):
         df_limpo.groupby(["cruzamento", "minuto", "id_veiculo"], as_index=False)
         .agg(
             velocidade_media_veiculo=("velocidade_kmh", "mean"),
+            tamanho_metros_veiculo=("tamanho_metros", "max"),
             excesso_velocidade=("excesso_velocidade", "max"),
             aceleracao_brusca=("aceleracao_brusca", "max"),
             comportamento_risco=("comportamento_risco", "max"),
@@ -130,6 +158,7 @@ def preprocessar_para_agentes(df):
         .agg(
             volume_veiculos=("id_veiculo", "nunique"),
             velocidade_media=("velocidade_media_veiculo", "mean"),
+            tamanho_total_metros=("tamanho_metros_veiculo", "sum"),
             veiculos_excesso_velocidade=("excesso_velocidade", "sum"),
             veiculos_aceleracao_brusca=("aceleracao_brusca", "sum"),
             veiculos_risco=("comportamento_risco", "sum"),
